@@ -27,7 +27,7 @@ def calculate_speed_vectorized(group):
     distances[valid_idx] = calculate_distance(lat1[valid_idx], lon1[valid_idx], lat2[valid_idx], lon2[valid_idx])
 
     speeds = distances / time_diff
-    speeds = speeds.fillna(0)  # Replace NaNs with 0
+    speeds = speeds.fillna(0)
     return speeds
 
 

@@ -57,14 +57,6 @@ def main():
     with open(output_json_file, "w") as f:
         json.dump(all_anomalies, f, indent=4)
 
-    with open(output_json_file, 'r') as file:
-        data = json.load(file)
-
-# Count the number of unique MMSI elements
-    num_mmsi_elements = len(data)
-
-    print(f"Number of unique MMSI elements: {num_mmsi_elements}")
-
 
 if __name__ == "__main__":
     start = time.time()
