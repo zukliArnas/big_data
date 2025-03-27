@@ -1,6 +1,6 @@
 # Big Data Analysis first assigment
 
-First of all, create virtual env to not overload ypur pc with extra files 
+First of all, create virtual env to not overload your pc with libraries:
 
 ```
 python3 -m venv .venv                 
@@ -8,6 +8,9 @@ python3 -m venv .venv
 ```
 source .venv/bin/activate
 ```
+
+And then install the requirements for this task:
+
 ```
 pip install -r requirements.txt                                                               
 ```
