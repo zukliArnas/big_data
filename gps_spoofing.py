@@ -3,6 +3,13 @@ import numpy as np
 import pandas as pd
 
 
+def split_csv_into_chunks(csv_file_path, num_chunks):
+    df = pd.read_csv(csv_file_path)
+    chunk_size = int(np.ceil(len(df) / num_chunks))
+    chunks = [df.iloc[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
+    return chunks
+
+
 def calculate_distance(lat1, lon1, lat2, lon2):
     R = 6371
     lat1, lon1, lat2, lon2 = map(np.radians, [lat1, lon1, lat2, lon2])
@@ -87,23 +94,17 @@ def detect_spoofing_in_chunk(chunk, speed_threshold=50.0):
     return anomalies_by_mmsi
 
 
-def process_chunks_with_print(csv_file_path, chunk_size=10**6):
+def process_chunks_with_print(chunk):
     anomalies = []
-    chunk_counter = 0
-    total_chunks = sum(1 for _ in pd.read_csv(csv_file_path, chunksize=chunk_size))
-    
-    for chunk in pd.read_csv(csv_file_path, chunksize=chunk_size):
-        if chunk.empty:
-            continue
 
-        chunk['# Timestamp'] = pd.to_datetime(chunk['# Timestamp'], format='%d/%m/%Y %H:%M:%S')
-        chunk_anomalies = detect_spoofing_in_chunk(chunk)
-        
-        if chunk_anomalies:
-            anomalies.append(chunk_anomalies)
+    if chunk.empty:
+        return anomalies
 
-        chunk_counter += 1
-        print(f"Processed {chunk_counter}/{total_chunks} chunks.")
+    chunk['# Timestamp'] = pd.to_datetime(chunk['# Timestamp'], format='%d/%m/%Y %H:%M:%S')
+    chunk_anomalies = detect_spoofing_in_chunk(chunk)
+
+    if chunk_anomalies:
+        anomalies.append(chunk_anomalies)
     return anomalies
 
 

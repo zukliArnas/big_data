@@ -3,10 +3,10 @@ import time
 import sys
 import json
 
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 
 from collect_the_data import *
-from gps_spoofing import process_chunks_with_print, save_anomalies_to_json
+from gps_spoofing import process_chunks_with_print, save_anomalies_to_json, split_csv_into_chunks
 from logger_config import get_logger
 
 logger = get_logger("task.log")
@@ -54,9 +54,13 @@ def main():
     logger.info("Starting data processing and anomaly detection...")
     start_processing_time = time.time()
 
-    with Pool(processes=1) as pool:
-        results = pool.apply_async(process_chunks_with_print, (csv_file_path,))
-        all_anomalies = results.get()
+    num_processes = cpu_count() - 1
+    chunks = split_csv_into_chunks(csv_file_path, num_processes)
+
+    with Pool(num_processes) as pool:
+        results = pool.map(process_chunks_with_print, chunks)
+
+    anomalies = [item for sublist in results for item in sublist]
 
     processing_time = time.time() - start_processing_time
     logger.info(f"Data processing completed in {processing_time:.2f} seconds.")
@@ -65,13 +69,13 @@ def main():
     # Save anomalies to a JSON file
     logger.info("Saving anomalies to JSON file...")
     output_json_file = os.path.join(extract_folder, "anomalies.json")
-    save_anomalies_to_json(all_anomalies, output_json_file)
+    save_anomalies_to_json(anomalies, output_json_file)
     logger.info(f"Anomalies saved to: {output_json_file}")
 
     logger.info(">>> Script execution completed.\n")
 
     with open(output_json_file, "w") as f:
-        json.dump(all_anomalies, f, indent=4)
+        json.dump(anomalies, f, indent=4)
 
 
 if __name__ == "__main__":
