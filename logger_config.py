@@ -1,5 +1,5 @@
 import logging
-import colorlog
+import colorlog # type: ignore
 import sys
 
 
